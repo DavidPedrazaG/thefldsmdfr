@@ -1,7 +1,8 @@
+"""Esquemas para los modelos relacionados con generos de las peliculas en la aplicación."""
 from pydantic import BaseModel
 
 
-class genre_model(BaseModel):
+class GenreModel(BaseModel):
     """Model representing a genre."""
-    id:int
-    name:str
+    id: int
+    name: str
