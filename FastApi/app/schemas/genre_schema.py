@@ -2,7 +2,7 @@
 from pydantic import BaseModel
 
 
-class GenreModel(BaseModel):
+class Genre(BaseModel):
     """Model representing a genre."""
     id: int
     name: str

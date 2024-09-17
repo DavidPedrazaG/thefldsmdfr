@@ -11,20 +11,6 @@ database = MySQLDatabase(
     host=os.getenv('DB_HOST')
 )
 
-class PlantModel(Model):
-    """Model representing a plant."""
-    id = AutoField(primary_key=True)
-    scientific_name = CharField(max_length=50)
-    common_name = CharField(max_length=50)
-    plant_type = ForeignKeyField('PlantTypeModel', backref='plants')  
-    watering_needs = CharField(max_length=50)
-    ideal_temperature = DecimalField(max_digits=5, decimal_places=2)
-    description = TextField(null=True)
-
-    class Meta:
-        database = database
-        table_name = "plants"
-
 class PlantTypeModel(Model):
     """Model representing a plant type."""
     id = AutoField(primary_key=True)
@@ -34,19 +20,19 @@ class PlantTypeModel(Model):
         database = database
         table_name = "plant_types"
 
-class MovieModel(Model):
-    """Model representing a movie."""
+class PlantModel(Model):
+    """Model representing a plant."""
     id = AutoField(primary_key=True)
-    title = CharField(max_length=100)
-    director = ForeignKeyField('PersonModel', backref='directed_movies')  # Relación con PersonModel
-    release_year = IntegerField()
-    duration = IntegerField()
-    genre = ForeignKeyField('GenreModel', backref='movies')  # Relación con GenreModel
-    country_of_origin = CharField(max_length=50)
+    scientific_name = CharField(max_length=50)
+    common_name = CharField(max_length=50)
+    plant_type = ForeignKeyField(PlantTypeModel, related_name='plants')  
+    watering_needs = CharField(max_length=50)
+    ideal_temperature = DecimalField(max_digits=5, decimal_places=2)
+    description = TextField(null=True)
 
     class Meta:
         database = database
-        table_name = "movies"
+        table_name = "plants"
 
 class GenreModel(Model):
     """Model representing a genre."""
@@ -67,3 +53,18 @@ class PersonModel(Model):
     class Meta:
         database = database
         table_name = "people"
+
+class MovieModel(Model):
+    """Model representing a movie."""
+    id = AutoField(primary_key=True)
+    title = CharField(max_length=100)
+    director = ForeignKeyField(PersonModel, related_name='movies')  # Relación con PersonModel
+    release_year = IntegerField()
+    duration = IntegerField()
+    genre = ForeignKeyField(GenreModel, related_name='movies')  # Relación con GenreModel
+    country_of_origin = CharField(max_length=50)
+
+    class Meta:
+        database = database
+        table_name = "movies"
+

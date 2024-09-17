@@ -1,7 +1,7 @@
 """Esquemas para los modelos relacionados con plantas en la aplicación."""
 from pydantic import BaseModel, Field, validator
 
-class PlantModel(BaseModel):
+class Plant(BaseModel):
     """Modelo que representa una planta."""
     id: int
     scientific_name: str
@@ -11,7 +11,7 @@ class PlantModel(BaseModel):
     ideal_temperature: float = Field(..., gt=0)
     description: str | None = None
     @validator("ideal_temperature")
-    def temperature_must_be_positive(self, v):
+    def temperature_must_be_positive(cls, v):
         """_summary_
 
         Args:

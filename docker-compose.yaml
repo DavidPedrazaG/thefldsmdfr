@@ -6,7 +6,7 @@ services:
     container_name: database
     restart: always
     ports:
-      - 3306:3306
+      - 3307:3307
     volumes:
       - ./MySQL/volumes:/var/lib/mysql
     hostname: eam_database
