@@ -2,131 +2,137 @@ from fastapi import APIRouter, Body, HTTPException
 from schemas.movie_schema import Movie
 from schemas.genre_schema import Genre
 from schemas.person_schema import Person
-from typing import List
+from database import MovieModel, GenreModel, PersonModel
 
-# Initialize the router
-router = APIRouter()
-
-# In-memory data storage for demonstration purposes
-movies = []
-genres = []
-people = []
-
-# Create endpoints
+movie_router = APIRouter()
+genre_router = APIRouter()
+person_router = APIRouter()
 
 # Movie Endpoints
-
-@router.post("/movies/", response_model=Movie)
+@movie_router.post("/")
 async def create_movie(movie: Movie = Body(...)):
-    """Create a new movie"""
-    movies.append(movie)
-    return movie
+    MovieModel.create(
+        title=movie.title,
+        description=movie.description,
+        release_date=movie.release_date,
+        genre_id=movie.genre_id,
+        director_id=movie.director_id
+    )
+    return {"message": "Movie created successfully"}
 
-@router.get("/movies/", response_model=List[Movie])
+@movie_router.get("/")
 async def read_movies():
-    """Read all movies"""
-    return movies
+    movies = MovieModel.select().dicts()
+    return list(movies)
 
-@router.get("/movies/{movie_id}", response_model=Movie)
+@movie_router.get("/{movie_id}")
 async def read_movie(movie_id: int):
-    """Read a movie by ID"""
-    for movie in movies:
-        if movie.id == movie_id:
-            return movie
-    raise HTTPException(status_code=404, detail="Movie not found")
+    try:
+        movie = MovieModel.get(MovieModel.id == movie_id)
+        return movie
+    except MovieModel.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Movie not found")
 
-@router.put("/movies/{movie_id}", response_model=Movie)
+@movie_router.put("/{movie_id}")
 async def update_movie(movie_id: int, movie: Movie = Body(...)):
-    """Update a movie"""
-    for i, existing_movie in enumerate(movies):
-        if existing_movie.id == movie_id:
-            movies[i] = movie
-            return movie
-    raise HTTPException(status_code=404, detail="Movie not found")
+    try:
+        movie_to_update = MovieModel.get(MovieModel.id == movie_id)
+        movie_to_update.title = movie.title
+        movie_to_update.description = movie.description
+        movie_to_update.release_date = movie.release_date
+        movie_to_update.genre_id = movie.genre_id
+        movie_to_update.director_id = movie.director_id
+        movie_to_update.save()
+        return {"message": "Movie updated successfully"}
+    except MovieModel.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Movie not found")
 
-@router.delete("/movies/{movie_id}")
+@movie_router.delete("/{movie_id}")
 async def delete_movie(movie_id: int):
-    """Delete a movie"""
-    for i, movie in enumerate(movies):
-        if movie.id == movie_id:
-            del movies[i]
-            return {"message": "Movie deleted"}
-    raise HTTPException(status_code=404, detail="Movie not found")
+    rows_deleted = MovieModel.delete().where(MovieModel.id == movie_id).execute()
+    if rows_deleted:
+        return {"message": "Movie deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Movie not found")
 
 # Genre Endpoints
-
-@router.post("/genres/", response_model=Genre)
+@genre_router.post("/")
 async def create_genre(genre: Genre = Body(...)):
-    """Create a new genre"""
-    genres.append(genre)
-    return genre
+    GenreModel.create(name=genre.name)
+    return {"message": "Genre created successfully"}
 
-@router.get("/genres/", response_model=List[Genre])
+@genre_router.get("/")
 async def read_genres():
-    """Read all genres"""
-    return genres
+    genres = GenreModel.select().dicts()
+    return list(genres)
 
-@router.get("/genres/{genre_id}", response_model=Genre)
+@genre_router.get("/{genre_id}")
 async def read_genre(genre_id: int):
-    """Read a genre by ID"""
-    for genre in genres:
-        if genre.id == genre_id:
-            return genre
-    raise HTTPException(status_code=404, detail="Genre not found")
+    try:
+        genre = GenreModel.get(GenreModel.id == genre_id)
+        return genre
+    except GenreModel.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Genre not found")
 
-@router.put("/genres/{genre_id}", response_model=Genre)
+@genre_router.put("/{genre_id}")
 async def update_genre(genre_id: int, genre: Genre = Body(...)):
-    """Update a genre"""
-    for i, existing_genre in enumerate(genres):
-        if existing_genre.id == genre_id:
-            genres[i] = genre
-            return genre
-    raise HTTPException(status_code=404, detail="Genre not found")
+    try:
+        genre_to_update = GenreModel.get(GenreModel.id == genre_id)
+        genre_to_update.name = genre.name
+        genre_to_update.save()
+        return {"message": "Genre updated successfully"}
+    except GenreModel.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Genre not found")
 
-@router.delete("/genres/{genre_id}")
+@genre_router.delete("/{genre_id}")
 async def delete_genre(genre_id: int):
-    """Delete a genre"""
-    for i, genre in enumerate(genres):
-        if genre.id == genre_id:
-            del genres[i]
-            return {"message": "Genre deleted"}
-    raise HTTPException(status_code=404, detail="Genre not found")
+    rows_deleted = GenreModel.delete().where(GenreModel.id == genre_id).execute()
+    if rows_deleted:
+        return {"message": "Genre deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Genre not found")
 
 # Person Endpoints
-
-@router.post("/people/", response_model=Person)
+@person_router.post("/")
 async def create_person(person: Person = Body(...)):
-    """Create a new person"""
-    people.append(person)
-    return person
+    PersonModel.create(
+        first_name=person.first_name,
+        last_name=person.last_name,
+        birth_date=person.birth_date,
+        role=person.role
+    )
+    return {"message": "Person created successfully"}
 
-@router.get("/people/", response_model=List[Person])
+@person_router.get("/")
 async def read_people():
-    """Read all people"""
-    return people
+    people = PersonModel.select().dicts()
+    return list(people)
 
-@router.get("/people/{person_id}", response_model=Person)
+@person_router.get("/{person_id}")
 async def read_person(person_id: int):
-    """Read a person by ID"""
-    for person in people:
-        if person.id == person_id:
-            return person
-    raise HTTPException(status_code=404, detail="Person not found")
+    try:
+        person = PersonModel.get(PersonModel.id == person_id)
+        return person
+    except PersonModel.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Person not found")
 
-@router.put("/people/{person_id}", response_model=Person)
+@person_router.put("/{person_id}")
 async def update_person(person_id: int, person: Person = Body(...)):
-    """Update a person"""
-    for i, existing_person in enumerate(people):
-        if existing_person.id == person_id:
-            people[i] = person
-            return person
-    raise HTTPException(status_code=404, detail="Person not found")
+    try:
+        person_to_update = PersonModel.get(PersonModel.id == person_id)
+        person_to_update.first_name = person.first_name
+        person_to_update.last_name = person.last_name
+        person_to_update.birth_date = person.birth_date
+        person_to_update.role = person.role
+        person_to_update.save()
+        return {"message": "Person updated successfully"}
+    except PersonModel.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Person not found")
 
-@router.delete("/people/{person_id}")
+@person_router.delete("/{person_id}")
 async def delete_person(person_id: int):
-    """Delete a person"""
-    for i, person in enumerate(people):
-        if person.id == person_id:
-            del people[i]
-            return {"message": "Person deleted"}
-    raise HTTPException(status_code=404, detail="Person not found")
+    rows_deleted = PersonModel.delete().where(PersonModel.id == person_id).execute()
+    if rows_deleted:
+        return {"message": "Person deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Person not found")

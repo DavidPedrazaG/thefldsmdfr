@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from database import database as connection
 from database import *
-from routes.movie_routes import router as movie_router
+from routes.movie_routes import movie_router, person_router, genre_router
 from routes.plant_routes import plant_route
 
 @asynccontextmanager
@@ -22,4 +22,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan = lifespan)
 
 app.include_router(movie_router, prefix="/api/movies", tags={"movies"})
+app.include_router(genre_router, prefix="/api/genre", tags={"genre"})
+app.include_router(person_router, prefix="/api/person", tags={"persons"})
 app.include_router(plant_route, prefix="/api/plants", tags={"plants"})
