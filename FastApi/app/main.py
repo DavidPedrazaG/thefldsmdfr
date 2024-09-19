@@ -10,7 +10,7 @@ async def lifespan(app: FastAPI):
 
     if connection.is_closed():
         connection.connect()
-        connection.create_tables([PlantModel, PlantTypeModel, MovieModel, GenreModel, PersonModel])
+        connection.create_tables([PlantModel, PlantTypeModel, MovieModel, GenreModel, PersonModel, MoviePersonModel])
 
     try:
         yield

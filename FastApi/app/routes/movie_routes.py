@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, HTTPException
 from schemas.movie_schema import Movie
 from schemas.genre_schema import Genre
 from schemas.person_schema import Person
-from database import MovieModel, GenreModel, PersonModel
+from database import MovieModel, GenreModel, PersonModel, MoviePersonModel
 
 movie_router = APIRouter()
 genre_router = APIRouter()
@@ -11,13 +11,20 @@ person_router = APIRouter()
 # Movie Endpoints
 @movie_router.post("/")
 async def create_movie(movie: Movie = Body(...)):
-    MovieModel.create(
+    new_movie = MovieModel.create(
         title=movie.title,
-        description=movie.description,
-        release_date=movie.release_date,
-        genre_id=movie.genre_id,
-        director_id=movie.director_id
+        director=movie.director,
+        release_year=movie.release_year,
+        duration=movie.duration,
+        genre=movie.genre,
+        country_of_origin=movie.country_of_origin,
     )
+    for i in movie.cast:
+        print(i)
+        MoviePersonModel.create(
+            movie_id = new_movie.id,
+            person_id = i
+        )
     return {"message": "Movie created successfully"}
 
 @movie_router.get("/")
@@ -38,10 +45,12 @@ async def update_movie(movie_id: int, movie: Movie = Body(...)):
     try:
         movie_to_update = MovieModel.get(MovieModel.id == movie_id)
         movie_to_update.title = movie.title
-        movie_to_update.description = movie.description
-        movie_to_update.release_date = movie.release_date
-        movie_to_update.genre_id = movie.genre_id
-        movie_to_update.director_id = movie.director_id
+        movie_to_update.director = movie.director
+        movie_to_update.release_year = movie.release_year
+        movie_to_update.duration = movie.duration
+        movie_to_update.genre = movie.genre
+        movie_to_update.country_of_origin = movie.country_of_origin
+        movie_to_update.cast = movie.cast
         movie_to_update.save()
         return {"message": "Movie updated successfully"}
     except MovieModel.DoesNotExist:
@@ -58,7 +67,9 @@ async def delete_movie(movie_id: int):
 # Genre Endpoints
 @genre_router.post("/")
 async def create_genre(genre: Genre = Body(...)):
-    GenreModel.create(name=genre.name)
+    GenreModel.create(
+        name=genre.name
+    )
     return {"message": "Genre created successfully"}
 
 @genre_router.get("/")
@@ -96,9 +107,8 @@ async def delete_genre(genre_id: int):
 @person_router.post("/")
 async def create_person(person: Person = Body(...)):
     PersonModel.create(
-        first_name=person.first_name,
-        last_name=person.last_name,
-        birth_date=person.birth_date,
+        name=person.name,
+        age=person.age,
         role=person.role
     )
     return {"message": "Person created successfully"}
@@ -120,9 +130,8 @@ async def read_person(person_id: int):
 async def update_person(person_id: int, person: Person = Body(...)):
     try:
         person_to_update = PersonModel.get(PersonModel.id == person_id)
-        person_to_update.first_name = person.first_name
-        person_to_update.last_name = person.last_name
-        person_to_update.birth_date = person.birth_date
+        person_to_update.name = person.name
+        person_to_update.age = person.age
         person_to_update.role = person.role
         person_to_update.save()
         return {"message": "Person updated successfully"}

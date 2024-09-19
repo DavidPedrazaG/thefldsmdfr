@@ -68,3 +68,11 @@ class MovieModel(Model):
         database = database
         table_name = "movies"
 
+class MoviePersonModel(Model):
+    """Model representing a movie-person relationship."""
+    movie_id = ForeignKeyField(MovieModel, related_name='movie_person')
+    person_id = ForeignKeyField(PersonModel, related_name='movie_person')
+
+    class Meta:
+        database = database
+        table_name = "movie_person"
