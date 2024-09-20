@@ -11,6 +11,13 @@ plant_route = APIRouter()
 @plant_route.post("/")
 async def create_plant(plant: Plant = Body(...)):
     """Create a new plant in the database."""
+    # Check if the plant type exists
+    try:
+        PlantTypeModel.get(PlantTypeModel.id == plant.plant_type)
+    except Exception as exc:  # Captura la excepción si no existe
+        raise HTTPException(status_code=404, detail="Plant type not found") from exc
+
+    # Proceed to create the plant
     PlantModel.create(
         scientific_name=plant.scientific_name,
         common_name=plant.common_name,
@@ -42,6 +49,13 @@ async def read_plant(plant_id: int):
 @plant_route.put("/{plant_id}")
 async def update_plant(plant_id: int, plant: Plant = Body(...)):
     """Update an existing plant's information."""
+    # Check if the plant type exists
+    try:
+        PlantTypeModel.get(PlantTypeModel.id == plant.plant_type)
+    except Exception as exc:  # Captura la excepción si no existe
+        raise HTTPException(status_code=404, detail="Plant type not found") from exc
+
+    # Proceed to update the plant
     try:
         existing_plant = PlantModel.get(PlantModel.id == plant_id)
         existing_plant.scientific_name = plant.scientific_name
