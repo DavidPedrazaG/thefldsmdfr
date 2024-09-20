@@ -6,7 +6,7 @@ from database import PlantModel, PlantTypeModel
 plant_route = APIRouter()
 
 # Create Plant
-@plant_route.post("/", response_model=Plant)
+@plant_route.post("/")
 async def create_plant(plant: Plant = Body(...)):
     """Crea una nueva planta en la base de datos."""
     new_plant = PlantModel.create(
@@ -17,17 +17,17 @@ async def create_plant(plant: Plant = Body(...)):
         ideal_temperature=plant.ideal_temperature,
         description=plant.description
     )
-    return new_plant
+    return {"message": "Plant created successfully"}
 
 # Read All Plants
-@plant_route.get("/", response_model=list[Plant])
+@plant_route.get("/")
 async def read_all_plants():
     """Obtiene una lista de todas las plantas."""
     plants = PlantModel.select().dicts()
     return list(plants)
 
 # Read Plant by ID
-@plant_route.get("/{plant_id}", response_model=Plant)
+@plant_route.get("/{plant_id}")
 async def read_plant(plant_id: int):
     """Obtiene una planta específica por su ID."""
     try:
@@ -37,7 +37,7 @@ async def read_plant(plant_id: int):
         raise HTTPException(status_code=404, detail="Plant not found")
 
 # Update Plant
-@plant_route.put("/{plant_id}", response_model=Plant)
+@plant_route.put("/{plant_id}")
 async def update_plant(plant_id: int, plant: Plant = Body(...)):
     """Actualiza la información de una planta existente."""
     try:
@@ -49,7 +49,7 @@ async def update_plant(plant_id: int, plant: Plant = Body(...)):
         existing_plant.ideal_temperature = plant.ideal_temperature
         existing_plant.description = plant.description
         existing_plant.save()
-        return existing_plant
+        return {"message": "Plant updated successfully"}
     except PlantModel.DoesNotExist:
         raise HTTPException(status_code=404, detail="Plant not found")
 
@@ -64,23 +64,23 @@ async def delete_plant(plant_id: int):
         raise HTTPException(status_code=404, detail="Plant not found")
 
 # Create Plant Type
-@plant_route.post("/plant-types/", response_model=PlantType)
+@plant_route.post("/plant-types/")
 async def create_plant_type(plant_type: PlantType = Body(...)):
     """Crea un nuevo tipo de planta."""
-    new_plant_type = PlantTypeModel.create(
+    PlantTypeModel.create(
         name=plant_type.name
     )
-    return new_plant_type
+    return {"message": "Plant type created successfully"}
 
 # Read All Plant Types
-@plant_route.get("/plant-types/", response_model=list[PlantType])
+@plant_route.get("/plant-types/")
 async def read_all_plant_types():
     """Obtiene una lista de todos los tipos de plantas."""
     plant_types = PlantTypeModel.select().dicts()
     return list(plant_types)
 
 # Read Plant Type by ID
-@plant_route.get("/plant-types/{plant_type_id}", response_model=PlantType)
+@plant_route.get("/plant-types/{plant_type_id}")
 async def read_plant_type(plant_type_id: int):
     """Obtiene un tipo de planta específico por su ID."""
     try:
@@ -90,14 +90,14 @@ async def read_plant_type(plant_type_id: int):
         raise HTTPException(status_code=404, detail="Plant type not found")
 
 # Update Plant Type
-@plant_route.put("/plant-types/{plant_type_id}", response_model=PlantType)
+@plant_route.put("/plant-types/{plant_type_id}")
 async def update_plant_type(plant_type_id: int, plant_type: PlantType = Body(...)):
     """Actualiza la información de un tipo de planta existente."""
     try:
         existing_plant_type = PlantTypeModel.get(PlantTypeModel.id == plant_type_id)
         existing_plant_type.name = plant_type.name
         existing_plant_type.save()
-        return existing_plant_type
+        return {"message": "Plan Type updated successfully"}
     except PlantTypeModel.DoesNotExist:
         raise HTTPException(status_code=404, detail="Plant type not found")
 
