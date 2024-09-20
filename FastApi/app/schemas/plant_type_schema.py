@@ -1,4 +1,4 @@
-"""Esquemas para los modelos relacionados con tippos de plantas en la aplicación."""
+"""Schemas for models related to plant types in the application."""
 from pydantic import BaseModel
 
 class PlantType(BaseModel):

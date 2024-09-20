@@ -1,29 +1,20 @@
-"""Esquemas para los modelos relacionados con plantas en la aplicación."""
+"""Schemas for models related to plants in the application."""
 from pydantic import BaseModel, Field, validator
 
 class Plant(BaseModel):
-    """Modelo que representa una planta."""
+    """Model representing a plant."""
     id: int
     scientific_name: str
     common_name: str
-    plant_type : int
+    plant_type: int
     watering_needs: str
     ideal_temperature: float = Field(..., gt=0)
     description: str | None = None
+
+    # pylint: disable=E0213
     @validator("ideal_temperature")
     def temperature_must_be_positive(cls, v):
-        """_summary_
-
-        Args:
-            cls
-            v (_type_): _description_
-
-        Raises:
-            ValueError: _description_
-
-        Returns:
-            _type_: _description_
-        """
+        """Ensure temperature is positive."""
         if v <= 0:
-            raise ValueError("La temperatura debe ser positiva")
+            raise ValueError("Temperature must be positive")
         return v
