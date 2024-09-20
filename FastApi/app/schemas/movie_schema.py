@@ -12,7 +12,7 @@ class Movie(BaseModel):
     genre: int
     country_of_origin: str
     cast: List[int]
-    
+
     # pylint: disable=E0213
     @validator("release_year")
     def valid_release_year(cls, v):
