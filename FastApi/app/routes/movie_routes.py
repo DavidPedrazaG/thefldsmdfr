@@ -39,15 +39,45 @@ async def create_movie(movie: Movie = Body(...)):
 @movie_router.get("/")
 async def read_movies():
     """Retrieve a list of all movies from the database."""
-    movies = MovieModel.select().dicts()
-    return list(movies)
+    movies = []
+    for movie in MovieModel.select():
+        cast_ids = [
+            mp[0] for mp in MoviePersonModel.select(MoviePersonModel.person_id).where(
+                MoviePersonModel.movie_id == movie.id
+            ).tuples()
+        ]
+        movies.append(Movie(
+            id=movie.id,
+            title=movie.title,
+            director=movie.director.id,
+            release_year=movie.release_year,
+            duration=movie.duration,
+            genre=movie.genre.id,
+            country_of_origin=movie.country_of_origin,
+            cast=cast_ids
+        ))
+    return movies
 
 @movie_router.get("/{movie_id}")
 async def read_movie(movie_id: int):
-    """Retrieve a specific movie by its ID."""
+    """Retrieve a specific movie by its ID, including cast IDs."""
     try:
         movie = MovieModel.get(MovieModel.id == movie_id)
-        return movie
+        cast_ids = [
+            mp[0] for mp in MoviePersonModel.select(MoviePersonModel.person_id).where(
+                MoviePersonModel.movie_id == movie.id
+            ).tuples()
+        ]
+        return Movie(
+            id=movie.id,
+            title=movie.title,
+            director=movie.director.id,
+            release_year=movie.release_year,
+            duration=movie.duration,
+            genre=movie.genre.id,
+            country_of_origin=movie.country_of_origin,
+            cast=cast_ids
+        )
     except Exception as exc:  # catch all exception
         raise HTTPException(status_code=404, detail="Movie not found") from exc
 
@@ -62,6 +92,12 @@ async def update_movie(movie_id: int, movie: Movie = Body(...)):
         movie_to_update.duration = movie.duration
         movie_to_update.genre = movie.genre
         movie_to_update.country_of_origin = movie.country_of_origin
+        MoviePersonModel.delete().where(MoviePersonModel.movie_id == movie_id).execute()
+        for person_id in movie.cast:
+            MoviePersonModel.create(
+                movie_id=movie_id,
+                person_id=person_id
+            )
         movie_to_update.save()
         return {"message": "Movie updated successfully"}
     except Exception as exc:  # catch all exception
