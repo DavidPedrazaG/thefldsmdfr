@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field, validator
+"""Schemas for models related to movies in the application."""
 from typing import List
+from pydantic import BaseModel, Field, validator
 
 class Movie(BaseModel):
-    """Modelo que representa una película."""
+    """Model representing a movie."""
     id: int
     title: str
     director: int
@@ -11,10 +12,11 @@ class Movie(BaseModel):
     genre: int
     country_of_origin: str
     cast: List[int]
-
+    
+    # pylint: disable=E0213
     @validator("release_year")
     def valid_release_year(cls, v):
-        """Asegurarse de que el año de lanzamiento sea válido."""
+        """Ensure that the release year is valid."""
         if v < 1888:
-            raise ValueError("El año de lanzamiento debe ser 1888 o posterior")
+            raise ValueError("The release year must be 1888 or later")
         return v
