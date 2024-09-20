@@ -5,4 +5,3 @@ class Genre(BaseModel):
     """Model representing a genre."""
     id: int
     name: str
-    
