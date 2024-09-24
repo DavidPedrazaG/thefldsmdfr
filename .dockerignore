@@ -5,3 +5,4 @@ venv
 Dockerfile
 docker-compose.yml
 __pycache__
+run.py

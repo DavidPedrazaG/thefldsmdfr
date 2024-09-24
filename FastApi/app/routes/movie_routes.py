@@ -5,7 +5,7 @@ This module defines the API endpoints for managing movies, genres, and people
 in the film industry using FastAPI. It includes endpoints for creating, 
 reading, updating, and deleting records in the database.
 """
-
+# pylint: disable=E0401
 from schemas.movie_schema import Movie
 from schemas.genre_schema import Genre
 from schemas.person_schema import Person
