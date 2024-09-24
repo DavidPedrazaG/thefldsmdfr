@@ -42,7 +42,7 @@ The project is executed using three **Docker** images:
 4. **Install the required libraries** (adjust the slashes `\` as needed for your OS):
 
    ```bash
-   pip install -r venv\FastApi\requirements.txt
+   pip install -r FastApi\requirements.txt
    ```
 
 5. **Open Docker Desktop**: Ensure Docker Desktop is running.
