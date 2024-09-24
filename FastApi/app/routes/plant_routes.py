@@ -1,9 +1,9 @@
 """Schemas for models related to plants in the application."""
+# pylint: disable=E0401
 from schemas.plant_schema import Plant
 from schemas.plant_type_schema import PlantType
 from database import PlantModel, PlantTypeModel
 from fastapi import APIRouter, Body, HTTPException
-
 
 plant_route = APIRouter()
 
